@@ -1,0 +1,78 @@
+d=e=0
+class Rsa:
+  def __init__(self):
+    try:
+      input = raw_input
+    except NameError:
+      pass
+    try:
+      chr = unichr
+    except NameError:
+      pass
+
+
+  def encrypt_block(self,m):
+    c = self.modinv(m**e, n)
+    if c == None: 
+      print('No modular multiplicative inverse for block ' + str(m) + '.')
+    return c
+
+  def decrypt_block(self,c):
+    m = self.modinv(c**d, n)
+    if m == None: 
+      print('No modular multiplicative inverse for block ' + str(c) + '.')
+    return m
+
+  def encrypt_string(self,s):
+    return ''.join([chr(self.encrypt_block(ord(x))) for x in list(s)])
+
+  def decrypt_string(self,s):
+    return ''.join([chr(self.decrypt_block(ord(x))) for x in list(s)])
+
+  def gcd(self,a, b):
+    while b != 0:
+      c = a % b
+      a = b
+      b = c
+    return a
+
+  def modinv(self,a, m):
+    for x in range(1, m):
+      if (a * x) % m == 1:
+        return x
+    return None
+
+  def coprimes(self,a):
+    l = []
+    for x in range(2, a):
+      if self.gcd(a, x) == 1 and self.modinv(x,phi) != None:
+        l.append(x)
+    for x in l:
+      if x == self.modinv(x,phi):
+        l.remove(x)
+    return l
+
+
+
+rsa = Rsa()
+p=int(input('Enter prime numbers p: '))
+q=int(input('Enter prime numbers q: '))
+print("selected prime Numbers:\np=" + str(p) + ", q=" + str(q) + "\n")
+n=p*q
+print("n = p * q = " + str(n) + "\n")
+phi=(p-1)*(q-1)
+print("Euler's function [phi(n)]:" + str(phi) + "\n")
+
+print("Choose an 'e' from a below coprimes array:\n")
+print(str(rsa.coprimes(phi)) + "\n")
+e=int(input())
+d=rsa.modinv(e,phi)
+print("\nYour public key (e=" + str(e) + ", n=" + str(n) + ").\n")
+print("Your private key (d=" + str(d) + ", n=" + str(n) + ").\n")
+
+s = input("Enter a message to encrypt: ")
+print("\nPlain message: " + s + "\n")
+enc = rsa.encrypt_string(s)
+print("Encrypted message: " + enc + "\n")
+dec = rsa.decrypt_string(enc)
+print("Decrypted message: " + dec + "\n")
